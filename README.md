@@ -8,8 +8,6 @@ A small single-file web app for practicing hiragana and katakana. A kana (or a s
 
 Go to https://1lkars.github.io/KanaTrainer/ and play it from your browser. Available both from PC and phone.
 
-## Features
-
 **Modes**
 - **Classic:** go through the whole set once, at your own pace. Every kana appears exactly once across the questions.
 - **Timed:** answer as many as you can before the round ends.
