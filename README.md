@@ -7,9 +7,7 @@ A small single-file web app for practicing hiragana and katakana. A kana appears
 
 ## Run it
 
-Download `kana_sprint.html` and open it in any modern browser.
-
-Optional: put `correct.wav`, `wrong.wav` and `finish.wav` in the same folder for sound effects. Without them the app works fine, just silently.
+Go to https://1lkars.github.io/KanaTrainer/ and play it from your browser. Available both from PC and phone.
 
 ## Features
 
