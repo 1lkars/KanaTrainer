@@ -27,7 +27,7 @@ select{width:100%}
 .range{display:flex;align-items:center;gap:10px}
 .range input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
 .range input[type=number]{width:5em;padding:7px 8px}
-.unit{color:var(--muted);width:1.3em}
+.unit{color:var(--muted);min-width:1.3em}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 12px;min-width:44px}
 .chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--on-accent);font-weight:600}
@@ -49,6 +49,7 @@ select{width:100%}
 .bar.flash{width:160px;margin:0 auto 12px}
 .question{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 0}
 .glyph{font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;font-size:clamp(5rem,16vw,8rem);line-height:1.15;margin:8px 0 12px}
+.glyph{max-width:100%;overflow-wrap:anywhere}
 .glyph.gone{opacity:0;transition:opacity .15s}
 .answer{display:flex;gap:8px}
 .answer input{flex:1;min-width:0;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;font-size:1.05rem}
@@ -70,18 +71,25 @@ dialog::backdrop{background:#0006}
 <p class="muted" style="margin:0">Read each kana and type its romaji. Small ゃ / ゅ / ょ combine with the previous kana: きゃ = kya.</p>
 
 <div class="group"><span class="label">Mode</span>
-<div class="seg" id="modes"><button type="button" data-mode="classic" aria-pressed="true">Classic</button><button type="button" data-mode="timed" aria-pressed="false">Timed</button><button type="button" data-mode="endless" aria-pressed="false">Endless</button><button type="button" data-mode="flash" aria-pressed="false">Flash</button></div>
+<div class="seg" id="modes"><button type="button" data-mode="classic" aria-pressed="true">Classic</button><button type="button" data-mode="timed" aria-pressed="false">Timed</button><button type="button" data-mode="endless" aria-pressed="false">Endless</button></div>
 <p class="muted" id="mode-desc" style="margin:8px 0 0"></p></div>
+
+<div class="group"><label class="check"><input type="checkbox" id="flash"> Hide each kana after a short time</label><p class="muted" style="margin:4px 0 0 25px">You can still type your answer after it disappears.</p></div>
+
+<div class="group hidden" id="flash-field"><label class="label" for="flash-time">Time the kana stays visible</label><div class="range"><input type="range" id="flash-time" min="0.5" max="5" step="0.5" value="2"><input type="number" id="flash-num" min="0.2" max="10" step="0.1" value="2" aria-label="Visible time in seconds"><span class="unit">s</span></div></div>
 
 <div class="group grid">
 <div><label class="label" for="script">Script</label><select id="script"><option value="both">Hiragana + katakana</option><option value="hira">Hiragana only</option><option value="kata">Katakana only</option></select></div>
 <div><label class="label" for="content">Content</label><select id="content"><option value="all">Kana + combinations</option><option value="basic">Single kana only</option><option value="combo">Combinations only</option></select></div>
-<div id="difficulty-field"><label class="label" for="difficulty">Combination difficulty</label><select id="difficulty"><option value="1">Easy: kya, sha, cho…</option><option value="2" selected>Medium: + gya, ja, bya…</option><option value="3">Hard: + fa, ti, je, wi…</option><option value="4">Expert: + kye, nye, ye…</option></select></div>
+<div id="difficulty-field"><label class="label" for="difficulty">Difficulty</label><select id="difficulty"><option value="1">Easy (up to 5 kana)</option><option value="2" selected>Medium (up to 10)</option><option value="3">Hard (up to 15)</option><option value="4">Expert (up to 20)</option></select></div>
 </div>
+<p class="muted" id="diff-hint" style="margin:8px 0 0"></p>
+
+<div class="group"><label class="label" for="maxlen">Max kana per question (set by difficulty, adjustable)</label><div class="range"><input type="range" id="maxlen" min="1" max="30" step="1" value="10"><input type="number" id="maxlen-num" min="1" max="50" step="1" value="10" aria-label="Max kana per question"><span class="unit">kana</span></div></div>
+
+<div class="group" id="small-field"><span class="label">Small kana in combinations</span><div class="chips" id="smalls"><button type="button" class="chip" data-small="ゃ" aria-pressed="true">ゃ ya</button><button type="button" class="chip" data-small="ゅ" aria-pressed="true">ゅ yu</button><button type="button" class="chip" data-small="ょ" aria-pressed="true">ょ yo</button></div></div>
 
 <div class="group hidden" id="duration-field"><label class="label" for="duration">Round length</label><div class="range"><input type="range" id="duration" min="5" max="300" step="5" value="60"><input type="number" id="duration-num" min="5" max="600" step="1" value="60" aria-label="Round length in seconds"><span class="unit">s</span></div></div>
-
-<div class="group hidden" id="flash-field"><label class="label" for="flash-time">Time the kana stays visible</label><div class="range"><input type="range" id="flash-time" min="0.5" max="5" step="0.5" value="2"><input type="number" id="flash-num" min="0.2" max="10" step="0.1" value="2" aria-label="Visible time in seconds"><span class="unit">s</span></div></div>
 
 <div class="group"><div class="group-head"><span class="label">Rows (optional, none selected = all rows)</span><span><button type="button" class="link" id="rows-all">Select all</button> &nbsp; <button type="button" class="link" id="rows-none">Clear</button></span></div>
 <div class="chips" id="rows"></div></div>
@@ -135,10 +143,13 @@ function bindPair(slider,num,{min,max,dec=0,onInput}){
  num.addEventListener('change',()=>{const v=get();num.value=v;slider.value=v;if(onInput)onInput();});
  return{get,set(v){v=fmt(clamp(v));num.value=v;slider.value=v;}};}
 const roundLen=bindPair($('duration'),$('duration-num'),{min:5,max:600});
+const maxLen=bindPair($('maxlen'),$('maxlen-num'),{min:1,max:50});
+const lens={1:5,2:10,3:15,4:20};
+const comboHint={1:'Combinations: standard only (kya, sha, cho…).',2:'Combinations: adds voiced ones (gya, ja, bya, pya).',3:'Combinations: adds foreign sounds (fa, ti, je, wi…).',4:'Combinations: adds rare ones (kye, nye, ye…).'};
 const flashTime=bindPair($('flash-time'),$('flash-num'),{min:0.2,max:10,dec:1});
 
-let mode='classic',pool=[],queue=[],current=null,ok=0,err=0,lateOk=0,count=0,running=false,remaining=60,total=60,timerId=null,flashId=null,hidden=false;
-const modeText={classic:['Classic','Go through the whole set once, at your own pace.'],timed:['Timed','Answer as many as you can before time runs out.'],endless:['Endless','No end and no timer. Finish whenever you like.'],flash:['Flash','Each kana disappears after a short time. You can still type your answer afterwards. Goes through the set once.']};
+let mode='classic',flashOn=false,pool=[],queue=[],current=null,ok=0,err=0,lateOk=0,count=0,running=false,remaining=60,total=60,timerId=null,flashId=null,hidden=false;
+const modeText={classic:['Classic','Go through the whole set once, at your own pace.'],timed:['Timed','Answer as many as you can before time runs out.'],endless:['Endless','No end and no timer. Finish whenever you like.']};
 $('mode-desc').textContent=modeText.classic[1];
 
 /* Settings: sound on/off and volume, remembered between visits when storage is available */
@@ -155,26 +166,41 @@ const dlg=$('settings');
 $('open-settings').addEventListener('click',()=>dlg.showModal());
 $('close-settings').addEventListener('click',()=>dlg.close());
 
-function updateSetupVisibility(){$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',mode!=='flash');$('difficulty-field').classList.toggle('hidden',$('content').value==='basic');}
+function updateSetupVisibility(){const noCombos=$('content').value==='basic';$('diff-hint').classList.toggle('hidden',noCombos);$('diff-hint').textContent=comboHint[$('difficulty').value];$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',!$('flash').checked);$('small-field').classList.toggle('hidden',noCombos);}
 document.querySelectorAll('#modes button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('#modes button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('mode-desc').textContent=modeText[mode][1];updateSetupVisibility();}));
-$('content').addEventListener('change',updateSetupVisibility);
+$('content').addEventListener('change',updateSetupVisibility);$('difficulty').addEventListener('change',()=>{maxLen.set(lens[$('difficulty').value]);updateSetupVisibility();});$('flash').addEventListener('change',updateSetupVisibility);
+/* Small kana (ゃ ゅ ょ) toggles for yoon combinations */
+const selectedSmalls=new Set(['ゃ','ゅ','ょ']);
+document.querySelectorAll('#smalls .chip').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.small;selectedSmalls.has(k)?selectedSmalls.delete(k):selectedSmalls.add(k);b.setAttribute('aria-pressed',selectedSmalls.has(k));}));
+function updateSmallLabels(){const sc=$('script').value,map={'ゃ':['ャ','ya'],'ゅ':['ュ','yu'],'ょ':['ョ','yo']};document.querySelectorAll('#smalls .chip').forEach(b=>{const k=b.dataset.small,kat=map[k][0],r=map[k][1];b.textContent=(sc==='hira'?k:sc==='kata'?kat:k+' '+kat)+' '+r;});}
+$('script').addEventListener('change',updateSmallLabels);
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function makePool(){const c=$('content').value,d=Number($('difficulty').value);let items=[];
  if(c!=='combo')items.push(...basic.map(([kana,romaji])=>({kana,romaji,kind:'Single kana'})));
- if(c!=='basic')items.push(...allCombos.filter(x=>x[2]<=d).map(([kana,romaji,t])=>({kana,romaji,kind:t>=3?'Extended combination':'Combination'})));
+ if(c!=='basic')items.push(...allCombos.filter(x=>x[2]<=d&&(!'ゃゅょ'.includes(x[0].slice(-1))||selectedSmalls.has(x[0].slice(-1)))).map(([kana,romaji,t])=>({kana,romaji,kind:t>=3?'Extended combination':'Combination'})));
  if(selectedRows.size)items=items.filter(x=>selectedRows.has(rowOf(x.kana)));
  if($('script').value!=='hira')items=items.map(x=>({...x,kana:kmap[x.kana]||[...x.kana].map(ch=>kmap[ch]||ch).join('')}));
  return items;}
 
+/* A question is a string of 1..max kana/combinations taken from the shuffled queue. Classic therefore still covers every item once. */
+function buildQuestion(){const max=maxLen.get(),n=1+Math.floor(Math.random()*max),parts=[];
+ while(parts.length<n){
+  if(!queue.length){if(mode==='classic')break;queue=shuffle([...pool]);}
+  let i=0;
+  /* avoid ん followed by a vowel or y-kana: the romaji would read as a different syllable (n+a = na) */
+  if(parts.length&&parts[parts.length-1].romaji==='n'){i=queue.findIndex(u=>!/^[aiueoy]/.test(u.romaji));if(i<0)break;}
+  parts.push(queue.splice(i,1)[0]);}
+ return{kana:parts.map(u=>u.kana).join(''),romaji:parts.map(u=>u.romaji).join(''),n:parts.length,kind:parts[0].kind};}
+function setGlyph(t){const g=$('glyph'),w=g.parentElement.clientWidth||520;g.textContent=t;g.style.fontSize=Math.max(36,Math.min(128,Math.floor(w*0.9/[...t].length)))+'px';}
 function showGlyph(){clearTimeout(flashId);hidden=false;$('glyph').classList.remove('gone');$('hint').textContent='Type the reading in romaji';}
 function startFlash(){const t=flashTime.get()*1000,f=$('flashfill');f.style.transition='none';f.style.width='100%';void f.offsetWidth;f.style.transition='width '+t+'ms linear';f.style.width='0%';flashId=setTimeout(()=>{hidden=true;$('glyph').classList.add('gone');$('hint').textContent='It disappeared. You can still answer.';},t);}
 
-function start(){pool=makePool();if(!pool.length){$('setup-note').textContent='No questions match these settings. Pick other rows or change the content type.';return;}
- $('setup-note').textContent='';clearInterval(timerId);showGlyph();
+function start(){pool=makePool();if(!pool.length){$('setup-note').textContent='No questions match these settings. Pick other rows, small kana or content type.';return;}
+ $('setup-note').textContent='';clearInterval(timerId);flashOn=$('flash').checked;showGlyph();
  queue=shuffle([...pool]);ok=0;err=0;lateOk=0;count=0;total=remaining=roundLen.get();running=true;
  $('setup').style.display='none';$('game').style.display='block';$('mode-label').textContent=modeText[mode][0];
- $('timer-box').classList.toggle('hidden',mode!=='timed');$('progress').classList.toggle('hidden',mode!=='timed');$('flashbar').classList.toggle('hidden',mode!=='flash');
+ $('timer-box').classList.toggle('hidden',mode!=='timed');$('progress').classList.toggle('hidden',mode!=='timed');$('flashbar').classList.toggle('hidden',!flashOn);
  $('progress-fill').style.width='100%';$('time').textContent=remaining;$('correct').textContent='0';$('wrong').textContent='0';
  $('feedback').textContent='';$('feedback').className='feedback';
  $('answer').disabled=false;$('answer-btn').disabled=false;$('finish').textContent='Finish';
@@ -182,23 +208,23 @@ function start(){pool=makePool();if(!pool.length){$('setup-note').textContent='N
  if(mode==='timed')timerId=setInterval(()=>{remaining--;$('time').textContent=remaining;$('progress-fill').style.width=(remaining/total*100)+'%';if(remaining<=0)finish(true);},1000);
  $('answer').focus();}
 function next(){if(!running)return;
- if(!queue.length){if(mode==='classic'||mode==='flash'){finish(false);return;}queue=shuffle([...pool]);}
- current=queue.shift();count++;showGlyph();
- $('glyph').textContent=current.kana;$('question-type').textContent=current.kind;$('round-label').textContent='Question '+count;
+ if(!queue.length){if(mode==='classic'){finish(false);return;}queue=shuffle([...pool]);}
+ current=buildQuestion();count++;showGlyph();
+ setGlyph(current.kana);$('question-type').textContent=current.n===1?current.kind:current.n+' kana';$('round-label').textContent='Question '+count;
  $('answer').value='';$('answer').focus();
- if(mode==='flash')startFlash();}
+ if(flashOn)startFlash();}
 function submit(){if(!running||!current)return;
  const v=$('answer').value.trim().toLowerCase().replace(/\s/g,'');if(!v)return;
- const item=current,late=hidden&&mode==='flash',right=v===item.romaji;
+ const item=current,late=hidden&&flashOn,right=v===item.romaji;
  if(right){ok++;if(late)lateOk++;sound('correct');}else{err++;sound('wrong');}
  $('correct').textContent=ok;$('wrong').textContent=err;
  next();
  if(running){$('feedback').textContent=(right?'Correct: ':'Wrong: ')+item.kana+' = '+item.romaji;$('feedback').className='feedback '+(right?'good':'bad');}}
 function finish(byTimer=false){if(!running)return;running=false;clearInterval(timerId);clearTimeout(flashId);current=null;sound('finish');
  $('glyph').classList.remove('gone');$('flashbar').classList.add('hidden');$('hint').textContent='';
- $('glyph').textContent=byTimer?'Time up':'Done';$('question-type').textContent='Round finished';
+ setGlyph(byTimer?'Time up':'Done');$('question-type').textContent='Round finished';
  $('answer').disabled=true;$('answer-btn').disabled=true;
- $('feedback').textContent='Result: '+ok+' correct, '+err+' wrong, '+(ok+err)+' answered'+(mode==='flash'?'. '+lateOk+' correct after the kana disappeared.':'');
+ $('feedback').textContent='Result: '+ok+' correct, '+err+' wrong, '+(ok+err)+' answered'+(flashOn?'. '+lateOk+' correct after the kana disappeared.':'');
  $('feedback').className='feedback '+(ok>=err?'good':'bad');$('round-label').textContent='Summary';$('finish').textContent='Back to setup';}
 function back(){if(running)finish(false);clearTimeout(flashId);$('game').style.display='none';$('setup').style.display='block';$('answer').disabled=false;$('answer-btn').disabled=false;$('finish').textContent='Finish';}
 
@@ -207,6 +233,6 @@ $('answer-btn').addEventListener('click',submit);
 $('answer').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();submit();}});
 $('finish').addEventListener('click',back);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dlg.open&&$('game').style.display==='block')back();});
-updateSetupVisibility();
+updateSetupVisibility();updateSmallLabels();
 })();
 </script></body></html>
