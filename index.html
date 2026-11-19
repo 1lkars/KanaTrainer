@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Kana Trainer</title>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Kana Trainer</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjM2I0Y2NhIi8+PHBhdGggZD0iTTY3LjIgMzguMiA1Ny4yIDM1LjlDNTcuMiAzNi44IDU3IDM4LjMgNTYuNyAzOS43SDU2LjNDNTMuMSAzOS43IDQ5LjkgNDAuMSA0Ni45IDQwLjdMNDcuMyAzNS44QzU1LjcgMzUuNSA2NC43IDM0LjYgNzEuMSAzMy40TDcxIDI0LjFDNjMuNCAyNS45IDU2LjYgMjYuOCA0OC42IDI3TDQ5LjEgMjQuMkM0OS40IDIzIDQ5LjcgMjEuOCA1MC4xIDIwLjNMMzkuNiAyMEMzOS43IDIxLjQgMzkuNSAyMy4yIDM5LjQgMjQuNUwzOS4xIDI3LjJIMzcuNEMzMi42IDI3LjIgMjYuNyAyNi42IDI0LjMgMjYuM0wyNC41IDM1LjZDMjcuOSAzNS43IDMzLjIgMzYuMSAzNy4xIDM2LjFIMzguMkMzNy45IDM4LjYgMzcuNyA0MS4xIDM3LjYgNDMuN0MyOCA0OC4zIDIxLjEgNTcuNCAyMS4xIDY2LjFDMjEuMSA3My42IDI1LjcgNzYuOCAzMC45IDc2LjhDMzQuMyA3Ni44IDM3LjggNzUuOCA0MC44IDc0LjVMNDEuNiA3Ni44TDUwLjkgNzRMNDkuNSA2OS4yQzU0LjMgNjUuMiA1OS42IDU4LjQgNjMuMiA0OS41QzY2LjggNTEuMiA2OC43IDU0LjMgNjguNyA1Ny43QzY4LjcgNjMuMiA2NC43IDY5LjkgNTEuMSA3MS40TDU2LjYgODBDNzMuNiA3Ny40IDc4LjkgNjcuNyA3OC45IDU4LjJDNzguOSA1MC4xIDczLjYgNDQuMSA2NiA0MS40Wk01NC4xIDQ4QzUyLjIgNTIuNCA0OS44IDU1LjcgNDcuMiA1OC40QzQ2LjkgNTUuNyA0Ni43IDUyLjYgNDYuNiA0OS4zQzQ4LjggNDguNiA1MS4yIDQ4LjIgNTQuMSA0OFpNMzguOCA2NS4yQzM2LjggNjYuMyAzNC45IDY2LjggMzMuNCA2Ni44QzMxLjQgNjYuOCAzMC43IDY1LjggMzAuNyA2My45QzMwLjcgNjEgMzMuMyA1Ni44IDM3LjUgNTMuNkMzNy43IDU3LjYgMzguMiA2MS42IDM4LjggNjUuMloiIGZpbGw9IiNmZmYiLz48L3N2Zz4=">
 <style>
 :root{--bg:#f6f7f9;--surface:#fff;--ink:#1b1f2a;--muted:#6b7280;--line:#e2e5ea;--accent:#3b4cca;--on-accent:#fff;--good:#1f9d6b;--bad:#d6455d}
 @media(prefers-color-scheme:dark){:root{--bg:#12141a;--surface:#1a1d26;--ink:#e8eaf0;--muted:#8b92a3;--line:#2a2e3a;--accent:#8c9bff;--on-accent:#10142a;--good:#4cd09a;--bad:#ff7a8c}}
@@ -74,6 +74,8 @@ dialog::backdrop{background:#0006}
 <div class="seg" id="modes"><button type="button" data-mode="classic" aria-pressed="true">Classic</button><button type="button" data-mode="timed" aria-pressed="false">Timed</button><button type="button" data-mode="endless" aria-pressed="false">Endless</button></div>
 <p class="muted" id="mode-desc" style="margin:8px 0 0"></p></div>
 
+<div class="group hidden" id="duration-field"><label class="label" for="duration">Round length</label><div class="range"><input type="range" id="duration" min="5" max="300" step="5" value="60"><input type="number" id="duration-num" min="5" max="600" step="1" value="60" aria-label="Round length in seconds"><span class="unit">s</span></div></div>
+
 <div class="group"><label class="check"><input type="checkbox" id="flash"> Hide each kana after a short time</label><p class="muted" style="margin:4px 0 0 25px">You can still type your answer after it disappears.</p></div>
 
 <div class="group hidden" id="flash-field"><label class="label" for="flash-time">Time the kana stays visible</label><div class="range"><input type="range" id="flash-time" min="0.5" max="5" step="0.5" value="2"><input type="number" id="flash-num" min="0.2" max="10" step="0.1" value="2" aria-label="Visible time in seconds"><span class="unit">s</span></div></div>
@@ -85,11 +87,9 @@ dialog::backdrop{background:#0006}
 </div>
 <p class="muted" id="diff-hint" style="margin:8px 0 0"></p>
 
-<div class="group"><label class="label" for="maxlen">Max kana per question (set by difficulty, adjustable)</label><div class="range"><input type="range" id="maxlen" min="1" max="30" step="1" value="10"><input type="number" id="maxlen-num" min="1" max="50" step="1" value="10" aria-label="Max kana per question"><span class="unit">kana</span></div></div>
+<div class="group" id="maxlen-field"><label class="label" for="maxlen">Max kana per question (set by difficulty, adjustable)</label><div class="range"><input type="range" id="maxlen" min="1" max="30" step="1" value="10"><input type="number" id="maxlen-num" min="1" max="50" step="1" value="10" aria-label="Max kana per question"><span class="unit">kana</span></div></div>
 
 <div class="group" id="small-field"><span class="label">Small kana in combinations</span><div class="chips" id="smalls"><button type="button" class="chip" data-small="ゃ" aria-pressed="true">ゃ ya</button><button type="button" class="chip" data-small="ゅ" aria-pressed="true">ゅ yu</button><button type="button" class="chip" data-small="ょ" aria-pressed="true">ょ yo</button></div></div>
-
-<div class="group hidden" id="duration-field"><label class="label" for="duration">Round length</label><div class="range"><input type="range" id="duration" min="5" max="300" step="5" value="60"><input type="number" id="duration-num" min="5" max="600" step="1" value="60" aria-label="Round length in seconds"><span class="unit">s</span></div></div>
 
 <div class="group"><div class="group-head"><span class="label">Rows (optional, none selected = all rows)</span><span><button type="button" class="link" id="rows-all">Select all</button> &nbsp; <button type="button" class="link" id="rows-none">Clear</button></span></div>
 <div class="chips" id="rows"></div></div>
@@ -148,7 +148,7 @@ const lens={1:5,2:10,3:15,4:20};
 const comboHint={1:'Combinations: standard only (kya, sha, cho…).',2:'Combinations: adds voiced ones (gya, ja, bya, pya).',3:'Combinations: adds foreign sounds (fa, ti, je, wi…).',4:'Combinations: adds rare ones (kye, nye, ye…).'};
 const flashTime=bindPair($('flash-time'),$('flash-num'),{min:0.2,max:10,dec:1});
 
-let mode='classic',flashOn=false,pool=[],queue=[],current=null,ok=0,err=0,lateOk=0,count=0,running=false,remaining=60,total=60,timerId=null,flashId=null,hidden=false;
+let mode='classic',flashOn=false,maxPer=1,pool=[],queue=[],current=null,ok=0,err=0,lateOk=0,count=0,running=false,remaining=60,total=60,timerId=null,flashId=null,hidden=false;
 const modeText={classic:['Classic','Go through the whole set once, at your own pace.'],timed:['Timed','Answer as many as you can before time runs out.'],endless:['Endless','No end and no timer. Finish whenever you like.']};
 $('mode-desc').textContent=modeText.classic[1];
 
@@ -166,7 +166,7 @@ const dlg=$('settings');
 $('open-settings').addEventListener('click',()=>dlg.showModal());
 $('close-settings').addEventListener('click',()=>dlg.close());
 
-function updateSetupVisibility(){const noCombos=$('content').value==='basic';$('diff-hint').classList.toggle('hidden',noCombos);$('diff-hint').textContent=comboHint[$('difficulty').value];$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',!$('flash').checked);$('small-field').classList.toggle('hidden',noCombos);}
+function updateSetupVisibility(){const noCombos=$('content').value==='basic';$('diff-hint').classList.toggle('hidden',noCombos);$('difficulty-field').classList.toggle('hidden',noCombos);$('maxlen-field').classList.toggle('hidden',noCombos);$('diff-hint').textContent=comboHint[$('difficulty').value];$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',!$('flash').checked);$('small-field').classList.toggle('hidden',noCombos);}
 document.querySelectorAll('#modes button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('#modes button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('mode-desc').textContent=modeText[mode][1];updateSetupVisibility();}));
 $('content').addEventListener('change',updateSetupVisibility);$('difficulty').addEventListener('change',()=>{maxLen.set(lens[$('difficulty').value]);updateSetupVisibility();});$('flash').addEventListener('change',updateSetupVisibility);
 /* Small kana (ゃ ゅ ょ) toggles for yoon combinations */
@@ -184,7 +184,7 @@ function makePool(){const c=$('content').value,d=Number($('difficulty').value);l
  return items;}
 
 /* A question is a string of 1..max kana/combinations taken from the shuffled queue. Classic therefore still covers every item once. */
-function buildQuestion(){const max=maxLen.get(),n=1+Math.floor(Math.random()*max),parts=[];
+function buildQuestion(){const max=maxPer,n=1+Math.floor(Math.random()*max),parts=[];
  while(parts.length<n){
   if(!queue.length){if(mode==='classic')break;queue=shuffle([...pool]);}
   let i=0;
@@ -197,7 +197,7 @@ function showGlyph(){clearTimeout(flashId);hidden=false;$('glyph').classList.rem
 function startFlash(){const t=flashTime.get()*1000,f=$('flashfill');f.style.transition='none';f.style.width='100%';void f.offsetWidth;f.style.transition='width '+t+'ms linear';f.style.width='0%';flashId=setTimeout(()=>{hidden=true;$('glyph').classList.add('gone');$('hint').textContent='It disappeared. You can still answer.';},t);}
 
 function start(){pool=makePool();if(!pool.length){$('setup-note').textContent='No questions match these settings. Pick other rows, small kana or content type.';return;}
- $('setup-note').textContent='';clearInterval(timerId);flashOn=$('flash').checked;showGlyph();
+ $('setup-note').textContent='';clearInterval(timerId);flashOn=$('flash').checked;maxPer=$('content').value==='basic'?1:maxLen.get();showGlyph();
  queue=shuffle([...pool]);ok=0;err=0;lateOk=0;count=0;total=remaining=roundLen.get();running=true;
  $('setup').style.display='none';$('game').style.display='block';$('mode-label').textContent=modeText[mode][0];
  $('timer-box').classList.toggle('hidden',mode!=='timed');$('progress').classList.toggle('hidden',mode!=='timed');$('flashbar').classList.toggle('hidden',!flashOn);
