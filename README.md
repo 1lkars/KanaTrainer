@@ -1,6 +1,6 @@
 **VIBECODED, Sorry :(**
 
-# Kana Sprint
+# Kana Trainer
 
 A small single-file web app for practicing hiragana and katakana. A kana (or a short string of kana) appears, you type its romaji, and you get instant feedback. No build step, no dependencies, no server.
 
