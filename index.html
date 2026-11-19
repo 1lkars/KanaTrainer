@@ -1,871 +1,212 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Тренажёр каны</title>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Kana Sprint</title>
 <style>
-  :root {
-    --bg: #fafafa;
-    --card: #fff;
-    --text: #222;
-    --muted: #888;
-    --accent: #3b82f6;
-    --ok: #16a34a;
-    --err: #dc2626;
-    --border: #e5e5e5;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    padding: 24px 16px;
-  }
-  .app { width: 100%; max-width: 640px; }
-  h1 { font-size: 1.4rem; margin: 0 0 16px; font-weight: 600; }
+:root{--bg:#f6f7f9;--surface:#fff;--ink:#1b1f2a;--muted:#6b7280;--line:#e2e5ea;--accent:#3b4cca;--on-accent:#fff;--good:#1f9d6b;--bad:#d6455d}
+@media(prefers-color-scheme:dark){:root{--bg:#12141a;--surface:#1a1d26;--ink:#e8eaf0;--muted:#8b92a3;--line:#2a2e3a;--accent:#8c9bff;--on-accent:#10142a;--good:#4cd09a;--bad:#ff7a8c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;padding:24px 16px}
+.app{max-width:640px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+h1{font-size:1.25rem;margin:0;font-weight:650}
+h2{font-size:1.05rem;margin:0 0 12px;font-weight:650}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.muted{color:var(--muted);font-size:.85rem}
+.group{margin-top:20px}
+.label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:8px}
+.group-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.group-head .label{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;border:0;background:transparent;padding:9px 8px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);font-weight:600}
+select,input[type=number]{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;font:inherit}
+select{width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.range{display:flex;align-items:center;gap:10px}
+.range input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
+.range input[type=number]{width:5em;padding:7px 8px}
+.unit{color:var(--muted);width:1.3em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 12px;min-width:44px}
+.chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--on-accent);font-weight:600}
+.link{border:0;background:none;color:var(--accent);padding:0;font-size:.85rem}
+.check{display:flex;gap:8px;align-items:center}
+.check input{width:17px;height:17px;accent-color:var(--accent)}
+.btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:9px 16px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+#start{width:100%;margin-top:22px;padding:12px}
+.note{color:var(--bad);font-size:.85rem;min-height:1.3em;margin:10px 0 0}
+#game{display:none}
+.gamehead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.stats{display:flex;gap:16px}
+.stat{font-size:.85rem;color:var(--muted);text-align:right}
+.stat b{display:block;color:var(--ink);font-size:1.1rem}
+.bar{height:4px;background:var(--line);border-radius:2px;margin:14px 0 0;overflow:hidden}
+.bar>div{height:100%;width:100%;background:var(--accent);transition:width .2s linear}
+.bar.flash{width:160px;margin:0 auto 12px}
+.question{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 0}
+.glyph{font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;font-size:clamp(5rem,16vw,8rem);line-height:1.15;margin:8px 0 12px}
+.glyph.gone{opacity:0;transition:opacity .15s}
+.answer{display:flex;gap:8px}
+.answer input{flex:1;min-width:0;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;font-size:1.05rem}
+.answer input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.feedback{min-height:26px;text-align:center;margin-top:12px;color:var(--muted)}
+.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}
+.gamebottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.hidden{display:none!important}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(380px,92vw)}
+dialog::backdrop{background:#0006}
+.dialog-actions{display:flex;justify-content:flex-end;margin-top:20px}
+@media(max-width:520px){.answer{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.bar>div{transition:none}}
+</style></head><body><div class="app">
+<header><h1>Kana Sprint</h1><button class="btn" id="open-settings" type="button">Settings</button></header>
 
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-  .section-title {
-    font-size: .8rem;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--muted);
-    margin-bottom: 10px;
-    font-weight: 600;
-  }
-  .rows {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .row-btn {
-    border: 1px solid var(--border);
-    background: #fff;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: .95rem;
-    cursor: pointer;
-    transition: all .15s;
-    font-family: inherit;
-    color: var(--text);
-  }
-  .row-btn:hover { border-color: var(--accent); }
-  .row-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .row-btn small { opacity: .7; font-size: .75rem; margin-left: 4px; }
+<section class="panel" id="setup">
+<h2>Practice setup</h2>
+<p class="muted" style="margin:0">Read each kana and type its romaji. Small ゃ / ゅ / ょ combine with the previous kana: きゃ = kya.</p>
 
-  .start-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  button.main {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 22px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity .15s;
-  }
-  button.main:hover { opacity: .9; }
-  button.main:disabled { opacity: .4; cursor: not-allowed; }
-  button.ghost {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 22px;
-    font-size: 1rem;
-    cursor: pointer;
-    font-family: inherit;
-    color: var(--text);
-  }
-  button.ghost:hover { border-color: var(--accent); }
-  button.infinite {
-    background: #fff;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    border-radius: 10px;
-    padding: 12px 22px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all .15s;
-  }
-  button.infinite:hover { background: var(--accent); color: #fff; }
-  button.icon-btn {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: .9rem;
-    cursor: pointer;
-    font-family: inherit;
-    color: var(--text);
-    white-space: nowrap;
-  }
-  button.icon-btn:hover { border-color: var(--accent); }
+<div class="group"><span class="label">Mode</span>
+<div class="seg" id="modes"><button type="button" data-mode="classic" aria-pressed="true">Classic</button><button type="button" data-mode="timed" aria-pressed="false">Timed</button><button type="button" data-mode="endless" aria-pressed="false">Endless</button><button type="button" data-mode="flash" aria-pressed="false">Flash</button></div>
+<p class="muted" id="mode-desc" style="margin:8px 0 0"></p></div>
 
-  .mode-toggles {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding-left: 10px;
-    border-left: 1px solid var(--border);
-  }
-  .toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: .9rem;
-    cursor: pointer;
-    user-select: none;
-    color: var(--text);
-  }
-  .toggle input {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--accent);
-    cursor: pointer;
-    margin: 0;
-  }
-
-  /* Панель настроек */
-  #settings-panel {
-    display: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-  }
-  #settings-panel.open { display: block; }
-  .settings-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    font-size: .92rem;
-  }
-  .settings-row + .settings-row { margin-top: 12px; }
-  .settings-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-  .settings-row input[type="checkbox"] {
-    width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0;
-  }
-  .settings-row input[type="range"] {
-    flex: 1; min-width: 120px; accent-color: var(--accent); cursor: pointer;
-  }
-  .volume-val { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; }
-
-  #trainer { display: none; }
-  #trainer.active { display: block; }
-
-  .stats {
-    display: flex;
-    gap: 18px;
-    font-size: .9rem;
-    color: var(--muted);
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .stats b { color: var(--text); font-weight: 600; }
-
-  .mode-badge {
-    display: inline-block;
-    font-size: .72rem;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: #eef4ff;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-
-  .prompt {
-    text-align: center;
-    padding: 34px 0 26px;
-  }
-  .kana {
-    font-size: 5.5rem;
-    line-height: 1;
-    font-weight: 500;
-    user-select: none;
-  }
-  .kana.correct { color: var(--ok); }
-  .kana.wrong { color: var(--err); }
-
-  .answer-form { display: flex; gap: 10px; }
-  .answer-form input {
-    flex: 1;
-    padding: 14px 16px;
-    font-size: 1.2rem;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    outline: none;
-    font-family: inherit;
-    background: #fff;
-    color: var(--text);
-    transition: border-color .15s;
-  }
-  .answer-form input:focus { border-color: var(--accent); }
-  .answer-form input.ok { border-color: var(--ok); }
-  .answer-form input.err { border-color: var(--err); }
-
-  .choices {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-    gap: 10px;
-  }
-  .choice-btn {
-    padding: 14px 10px;
-    font-size: 1.1rem;
-    font-family: inherit;
-    border: 2px solid var(--border);
-    background: #fff;
-    color: var(--text);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .choice-btn:hover:not(:disabled) { border-color: var(--accent); }
-  .choice-btn:disabled { cursor: default; }
-  .choice-btn.ok {
-    border-color: var(--ok);
-    background: #f0fdf4;
-    color: var(--ok);
-    font-weight: 600;
-  }
-  .choice-btn.err {
-    border-color: var(--err);
-    background: #fef2f2;
-    color: var(--err);
-    font-weight: 600;
-  }
-
-  .feedback {
-    min-height: 24px;
-    margin-top: 12px;
-    font-size: .95rem;
-    text-align: center;
-  }
-  .feedback.ok { color: var(--ok); }
-  .feedback.err { color: var(--err); }
-
-  .hint { font-size: .82rem; color: var(--muted); margin-top: 6px; }
-  .kbd {
-    display: inline-block;
-    border: 1px solid var(--border);
-    border-bottom-width: 2px;
-    border-radius: 5px;
-    padding: 0 5px;
-    font-size: .78rem;
-    font-family: ui-monospace, monospace;
-    color: var(--text);
-    background: #fff;
-  }
-
-  @media (max-width: 480px) {
-    .kana { font-size: 4rem; }
-    .answer-form { flex-direction: column; }
-    .mode-toggles { border-left: none; padding-left: 0; width: 100%; }
-  }
-</style>
-</head>
-<body>
-<div class="app">
-  <h1>Тренажёр хираганы и катаканы</h1>
-
-  <div class="card" id="setup">
-    <div class="card-head">
-      <div class="section-title" style="margin:0">Настройки тренировки</div>
-      <button class="icon-btn" id="settings-btn" aria-expanded="false">Настройки</button>
-    </div>
-
-    <div id="settings-panel">
-      <div class="settings-row">
-        <label>
-          <input type="checkbox" id="opt-sound" checked>
-          <span>Звуки</span>
-        </label>
-        <label style="flex:1; cursor:default">
-          <span>Громкость</span>
-          <input type="range" id="opt-volume" min="0" max="100" value="70">
-        </label>
-        <span class="volume-val" id="volume-val">70%</span>
-      </div>
-      <div class="hint" style="margin-top:8px">
-        Файлы <code>correct.wav</code>, <code>wrong.wav</code>, <code>finish.wav</code> должны лежать рядом с этим HTML.
-      </div>
-    </div>
-
-    <div class="section-title" style="margin-top:16px">Выберите ряды</div>
-    <div class="rows" id="row-buttons"></div>
-
-    <div class="section-title">Азбука</div>
-    <div class="rows" id="alphabet-buttons">
-      <button class="row-btn active" data-alphabet="both">Обе</button>
-      <button class="row-btn" data-alphabet="hiragana">Хирагана</button>
-      <button class="row-btn" data-alphabet="katakana">Катакана</button>
-    </div>
-
-    <div class="start-row">
-      <button class="main" id="start-btn">Начать</button>
-      <button class="infinite" id="infinite-btn">∞ Бесконечный режим</button>
-
-      <div class="mode-toggles">
-        <label class="toggle">
-          <input type="checkbox" id="opt-choices">
-          <span>Варианты ответов</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" id="opt-shuffle" checked>
-          <span>Смешивать</span>
-        </label>
-      </div>
-    </div>
-
-    <div class="hint">
-      «Смешивать» перемешивает и порядок символов, и варианты ответа.
-      Горячие клавиши в уроке: <span class="kbd">R</span> — перезапуск, <span class="kbd">Enter</span> — ответить, <span class="kbd">Esc</span> — завершить.
-    </div>
-  </div>
-
-  <div id="trainer">
-    <div class="card">
-      <div class="mode-badge" id="mode-badge">Обычный режим</div>
-      <div class="stats">
-        <span>Верно: <b id="stat-ok">0</b></span>
-        <span>Ошибок: <b id="stat-err">0</b></span>
-        <span id="left-wrap">Осталось: <b id="stat-left">0</b></span>
-      </div>
-
-      <div class="prompt">
-        <div class="kana" id="kana">あ</div>
-      </div>
-
-      <form class="answer-form" id="answer-form" autocomplete="off">
-        <input type="text" id="answer" placeholder="Введите ромадзи..." autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button type="submit" class="main">Проверить</button>
-      </form>
-
-      <div class="choices" id="choices" style="display:none"></div>
-
-      <div class="feedback" id="feedback"></div>
-    </div>
-    <div class="actions">
-      <button class="main" id="restart-btn" title="Перезапустить (R)">Перезапуск</button>
-      <button class="ghost" id="stop-btn">Завершить</button>
-    </div>
-  </div>
+<div class="group grid">
+<div><label class="label" for="script">Script</label><select id="script"><option value="both">Hiragana + katakana</option><option value="hira">Hiragana only</option><option value="kata">Katakana only</option></select></div>
+<div><label class="label" for="content">Content</label><select id="content"><option value="all">Kana + combinations</option><option value="basic">Single kana only</option><option value="combo">Combinations only</option></select></div>
+<div id="difficulty-field"><label class="label" for="difficulty">Combination difficulty</label><select id="difficulty"><option value="1">Easy: kya, sha, cho…</option><option value="2" selected>Medium: + gya, ja, bya…</option><option value="3">Hard: + fa, ti, je, wi…</option><option value="4">Expert: + kye, nye, ye…</option></select></div>
 </div>
 
+<div class="group hidden" id="duration-field"><label class="label" for="duration">Round length</label><div class="range"><input type="range" id="duration" min="5" max="300" step="5" value="60"><input type="number" id="duration-num" min="5" max="600" step="1" value="60" aria-label="Round length in seconds"><span class="unit">s</span></div></div>
+
+<div class="group hidden" id="flash-field"><label class="label" for="flash-time">Time the kana stays visible</label><div class="range"><input type="range" id="flash-time" min="0.5" max="5" step="0.5" value="2"><input type="number" id="flash-num" min="0.2" max="10" step="0.1" value="2" aria-label="Visible time in seconds"><span class="unit">s</span></div></div>
+
+<div class="group"><div class="group-head"><span class="label">Rows (optional, none selected = all rows)</span><span><button type="button" class="link" id="rows-all">Select all</button> &nbsp; <button type="button" class="link" id="rows-none">Clear</button></span></div>
+<div class="chips" id="rows"></div></div>
+
+<button class="btn primary" id="start" type="button">Start</button>
+<p class="note" id="setup-note" role="status"></p>
+</section>
+
+<section id="game" class="panel">
+<div class="gamehead"><div><strong id="mode-label">Classic</strong><div class="muted" id="round-label">Question 1</div></div>
+<div class="stats"><div class="stat">Correct<b id="correct">0</b></div><div class="stat">Wrong<b id="wrong">0</b></div><div class="stat" id="timer-box">Time<b id="time">60</b></div></div></div>
+<div class="bar" id="progress"><div id="progress-fill"></div></div>
+<div class="question"><span class="muted" id="question-type">Combination</span><div class="glyph" id="glyph">きゃ</div><div class="bar flash hidden" id="flashbar"><div id="flashfill" style="transition:none"></div></div><span class="muted" id="hint">Type the reading in romaji</span></div>
+<div class="answer"><input id="answer" type="text" placeholder="e.g. kya" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Romaji answer"><button class="btn primary" id="answer-btn" type="button">Answer</button></div>
+<div class="feedback" id="feedback" role="status"></div>
+<div class="gamebottom"><span class="muted">Enter to answer, Esc to finish</span><button class="btn" id="finish" type="button">Finish</button></div>
+</section></div>
+
+<dialog id="settings"><h2>Settings</h2>
+<label class="check"><input type="checkbox" id="sound" checked> Sound effects</label>
+<div class="group"><label class="label" for="volume">Sound effects volume</label><div class="range"><input type="range" id="volume" min="0" max="100" step="5" value="70"><input type="number" id="volume-num" min="0" max="100" step="1" value="70" aria-label="Volume in percent"><span class="unit">%</span></div></div>
+<div class="dialog-actions"><button class="btn primary" id="close-settings" type="button">Done</button></div></dialog>
+
 <script>
-(() => {
-  const ROWS = {
-    'vowels': { label: 'Гласные', chars: [
-      ['あ','ア',['a']], ['い','イ',['i']], ['う','ウ',['u']], ['え','エ',['e']], ['お','オ',['o']]
-    ]},
-    'k': { label: 'k', chars: [
-      ['か','カ',['ka']], ['き','キ',['ki']], ['く','ク',['ku']], ['け','ケ',['ke']], ['こ','コ',['ko']]
-    ]},
-    's': { label: 's', chars: [
-      ['さ','サ',['sa']], ['し','シ',['shi','si']], ['す','ス',['su']], ['せ','セ',['se']], ['そ','ソ',['so']]
-    ]},
-    't': { label: 't', chars: [
-      ['た','タ',['ta']], ['ち','チ',['chi','ti']], ['つ','ツ',['tsu','tu']], ['て','テ',['te']], ['と','ト',['to']]
-    ]},
-    'n': { label: 'n', chars: [
-      ['な','ナ',['na']], ['に','ニ',['ni']], ['ぬ','ヌ',['nu']], ['ね','ネ',['ne']], ['の','ノ',['no']]
-    ]},
-    'h': { label: 'h', chars: [
-      ['は','ハ',['ha']], ['ひ','ヒ',['hi']], ['ふ','フ',['fu','hu']], ['へ','ヘ',['he']], ['ほ','ホ',['ho']]
-    ]},
-    'm': { label: 'm', chars: [
-      ['ま','マ',['ma']], ['み','ミ',['mi']], ['む','ム',['mu']], ['め','メ',['me']], ['も','モ',['mo']]
-    ]},
-    'y': { label: 'y', chars: [
-      ['や','ヤ',['ya']], ['ゆ','ユ',['yu']], ['よ','ヨ',['yo']]
-    ]},
-    'r': { label: 'r', chars: [
-      ['ら','ラ',['ra']], ['り','リ',['ri']], ['る','ル',['ru']], ['れ','レ',['re']], ['ろ','ロ',['ro']]
-    ]},
-    'w': { label: 'w', chars: [
-      ['わ','ワ',['wa']], ['を','ヲ',['wo','o']], ['ん','ン',['n','nn']]
-    ]},
-  };
+(()=>{const $=id=>document.getElementById(id);
+const basic=[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o'],['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko'],['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so'],['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to'],['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no'],['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho'],['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo'],['や','ya'],['ゆ','yu'],['よ','yo'],['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro'],['わ','wa'],['を','wo'],['ん','n'],['が','ga'],['ぎ','gi'],['ぐ','gu'],['げ','ge'],['ご','go'],['ざ','za'],['じ','ji'],['ず','zu'],['ぜ','ze'],['ぞ','zo'],['だ','da'],['ぢ','ji'],['づ','zu'],['で','de'],['ど','do'],['ば','ba'],['び','bi'],['ぶ','bu'],['べ','be'],['ぼ','bo'],['ぱ','pa'],['ぴ','pi'],['ぷ','pu'],['ぺ','pe'],['ぽ','po']];
+/* Combinations carry a difficulty tier: 1 easy, 2 medium (voiced), 3 hard (foreign sounds), 4 expert (rare) */
+const yoonRows=[['き','ky',1],['し','sh',1],['ち','ch',1],['に','ny',1],['ひ','hy',1],['み','my',1],['り','ry',1],['ぎ','gy',2],['じ','j',2],['び','by',2],['ぴ','py',2],['ぢ','j',4]];
+const yoon=yoonRows.flatMap(([b,p,t])=>[['ゃ','a'],['ゅ','u'],['ょ','o']].map(([s,v])=>[b+s,p+v,t]));
+const hard=[['てぃ','ti'],['でぃ','di'],['とぅ','tu'],['どぅ','du'],['ふぁ','fa'],['ふぃ','fi'],['ふぇ','fe'],['ふぉ','fo'],['うぃ','wi'],['うぇ','we'],['うぉ','wo'],['しぇ','she'],['ちぇ','che'],['じぇ','je']].map(x=>[...x,3]);
+const expert=[['きぇ','kye'],['ぎぇ','gye'],['にぇ','nye'],['ひぇ','hye'],['みぇ','mye'],['りぇ','rye'],['びぇ','bye'],['ぴぇ','pye'],['いぇ','ye']].map(x=>[...x,4]);
+const allCombos=[...yoon,...hard,...expert];
+const kmap={'あ':'ア','い':'イ','う':'ウ','え':'エ','お':'オ','か':'カ','き':'キ','く':'ク','け':'ケ','こ':'コ','さ':'サ','し':'シ','す':'ス','せ':'セ','そ':'ソ','た':'タ','ち':'チ','つ':'ツ','て':'テ','と':'ト','な':'ナ','に':'ニ','ぬ':'ヌ','ね':'ネ','の':'ノ','は':'ハ','ひ':'ヒ','ふ':'フ','へ':'ヘ','ほ':'ホ','ま':'マ','み':'ミ','む':'ム','め':'メ','も':'モ','や':'ヤ','ゆ':'ユ','よ':'ヨ','ら':'ラ','り':'リ','る':'ル','れ':'レ','ろ':'ロ','わ':'ワ','を':'ヲ','ん':'ン','が':'ガ','ぎ':'ギ','ぐ':'グ','げ':'ゲ','ご':'ゴ','ざ':'ザ','じ':'ジ','ず':'ズ','ぜ':'ゼ','ぞ':'ゾ','だ':'ダ','ぢ':'ヂ','づ':'ヅ','で':'デ','ど':'ド','ば':'バ','び':'ビ','ぶ':'ブ','べ':'ベ','ぼ':'ボ','ぱ':'パ','ぴ':'ピ','ぷ':'プ','ぺ':'ペ','ぽ':'ポ','ゃ':'ャ','ゅ':'ュ','ょ':'ョ','てぃ':'ティ','でぃ':'ディ','とぅ':'トゥ','どぅ':'ドゥ','ふぁ':'ファ','ふぃ':'フィ','ふぇ':'フェ','ふぉ':'フォ','うぃ':'ウィ','うぇ':'ウェ','うぉ':'ウォ','しぇ':'シェ','ちぇ':'チェ','じぇ':'ジェ','きぇ':'キェ','ぎぇ':'ギェ','にぇ':'ニェ','ひぇ':'ヒェ','みぇ':'ミェ','りぇ':'リェ','びぇ':'ビェ','ぴぇ':'ピェ','いぇ':'イェ'};
 
-  const LS_KEY = 'kana-trainer-settings-v1';
+/* Kana rows: id, chip label, member kana (a combination belongs to the row of its first kana) */
+const rowDefs=[['v','Vowels','あいうえお'],['k','K','かきくけこ'],['s','S','さしすせそ'],['t','T','たちつてと'],['n','N','なにぬねの'],['h','H','はひふへほ'],['m','M','まみむめも'],['y','Y','やゆよ'],['r','R','らりるれろ'],['w','W / N','わをん'],['g','G','がぎぐげご'],['z','Z','ざじずぜぞ'],['d','D','だぢづでど'],['b','B','ばびぶべぼ'],['p','P','ぱぴぷぺぽ']];
+const rowMap={};rowDefs.forEach(([id,,chars])=>[...chars].forEach(c=>rowMap[c]=id));
+function rowOf(kana){if(kana==='いぇ')return 'y';if(kana[0]==='う'&&kana.length>1)return 'w';return rowMap[kana[0]];}
+const selectedRows=new Set();
+const rowsBox=$('rows');
+rowDefs.forEach(([id,label])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=label;b.dataset.row=id;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>{selectedRows.has(id)?selectedRows.delete(id):selectedRows.add(id);b.setAttribute('aria-pressed',selectedRows.has(id));});rowsBox.appendChild(b);});
+function setAllRows(on){selectedRows.clear();rowsBox.querySelectorAll('.chip').forEach(b=>{if(on)selectedRows.add(b.dataset.row);b.setAttribute('aria-pressed',on);});}
+$('rows-all').addEventListener('click',()=>setAllRows(true));$('rows-none').addEventListener('click',()=>setAllRows(false));
 
-  const state = {
-    selectedRows: new Set(['vowels']),
-    alphabet: 'both',
-    queue: [],
-    current: null,
-    ok: 0,
-    err: 0,
-    running: false,
-    infinite: false,
-    pool: [],
-    useChoices: false,
-    shuffleMode: true,
-    locked: false,
-    lastConfig: null, // для перезапуска
-    sound: { enabled: true, volume: 0.7 },
-  };
+/* Slider + number field pair. The slider snaps to its step, the number field accepts any value in range. */
+function bindPair(slider,num,{min,max,dec=0,onInput}){
+ const clamp=v=>Math.min(max,Math.max(min,v)),fmt=v=>Number(v.toFixed(dec));
+ const get=()=>{const v=parseFloat(num.value);return fmt(clamp(isNaN(v)?Number(slider.value):v));};
+ slider.addEventListener('input',()=>{num.value=slider.value;if(onInput)onInput();});
+ num.addEventListener('input',()=>{const v=parseFloat(num.value);if(!isNaN(v))slider.value=clamp(v);if(onInput)onInput();});
+ num.addEventListener('change',()=>{const v=get();num.value=v;slider.value=v;if(onInput)onInput();});
+ return{get,set(v){v=fmt(clamp(v));num.value=v;slider.value=v;}};}
+const roundLen=bindPair($('duration'),$('duration-num'),{min:5,max:600});
+const flashTime=bindPair($('flash-time'),$('flash-num'),{min:0.2,max:10,dec:1});
 
-  const rowButtonsEl = document.getElementById('row-buttons');
-  const alphabetButtonsEl = document.getElementById('alphabet-buttons');
-  const startBtn = document.getElementById('start-btn');
-  const infiniteBtn = document.getElementById('infinite-btn');
-  const restartBtn = document.getElementById('restart-btn');
-  const stopBtn = document.getElementById('stop-btn');
-  const setupEl = document.getElementById('setup');
-  const trainerEl = document.getElementById('trainer');
-  const kanaEl = document.getElementById('kana');
-  const answerForm = document.getElementById('answer-form');
-  const answerInput = document.getElementById('answer');
-  const choicesEl = document.getElementById('choices');
-  const feedbackEl = document.getElementById('feedback');
-  const statOk = document.getElementById('stat-ok');
-  const statErr = document.getElementById('stat-err');
-  const statLeft = document.getElementById('stat-left');
-  const leftWrap = document.getElementById('left-wrap');
-  const modeBadge = document.getElementById('mode-badge');
-  const optChoices = document.getElementById('opt-choices');
-  const optShuffle = document.getElementById('opt-shuffle');
+let mode='classic',pool=[],queue=[],current=null,ok=0,err=0,lateOk=0,count=0,running=false,remaining=60,total=60,timerId=null,flashId=null,hidden=false;
+const modeText={classic:['Classic','Go through the whole set once, at your own pace.'],timed:['Timed','Answer as many as you can before time runs out.'],endless:['Endless','No end and no timer. Finish whenever you like.'],flash:['Flash','Each kana disappears after a short time. You can still type your answer afterwards. Goes through the set once.']};
+$('mode-desc').textContent=modeText.classic[1];
 
-  // Настройки звука
-  const settingsBtn = document.getElementById('settings-btn');
-  const settingsPanel = document.getElementById('settings-panel');
-  const optSound = document.getElementById('opt-sound');
-  const optVolume = document.getElementById('opt-volume');
-  const volumeVal = document.getElementById('volume-val');
+/* Settings: sound on/off and volume, remembered between visits when storage is available */
+const sounds={correct:new Audio('correct.wav'),wrong:new Audio('wrong.wav'),finish:new Audio('finish.wav')};Object.values(sounds).forEach(a=>a.preload='auto');
+const volume=bindPair($('volume'),$('volume-num'),{min:0,max:100,onInput:()=>{applyVolume();saveSettings();}});
+function applyVolume(){const v=volume.get()/100;Object.values(sounds).forEach(a=>a.volume=v);}
+function sound(n){if(!$('sound').checked||volume.get()===0)return;const a=sounds[n];try{a.pause();a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}}
+function saveSettings(){try{localStorage.setItem('kanaSprintSettings',JSON.stringify({sound:$('sound').checked,volume:volume.get()}));}catch(e){}}
+try{const s=JSON.parse(localStorage.getItem('kanaSprintSettings')||'null');if(s){$('sound').checked=!!s.sound;if(s.volume!=null)volume.set(Number(s.volume));}}catch(e){}
+applyVolume();
+$('volume').addEventListener('change',()=>sound('correct'));$('volume-num').addEventListener('change',()=>sound('correct'));
+$('sound').addEventListener('change',()=>{saveSettings();if($('sound').checked)sound('correct');});
+const dlg=$('settings');
+$('open-settings').addEventListener('click',()=>dlg.showModal());
+$('close-settings').addEventListener('click',()=>dlg.close());
 
-  // Звуки (Audio элементы создаём лениво, но заранее)
-  const sounds = {
-    correct: new Audio('correct.wav'),
-    wrong: new Audio('wrong.wav'),
-    finish: new Audio('finish.wav'),
-  };
-  // Если файла нет — помечаем как недоступный, чтобы не спамить консоль
-  Object.values(sounds).forEach(a => {
-    a.addEventListener('error', () => { a.dataset.broken = '1'; }, { once: true });
-    a.preload = 'auto';
-  });
+function updateSetupVisibility(){$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',mode!=='flash');$('difficulty-field').classList.toggle('hidden',$('content').value==='basic');}
+document.querySelectorAll('#modes button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('#modes button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('mode-desc').textContent=modeText[mode][1];updateSetupVisibility();}));
+$('content').addEventListener('change',updateSetupVisibility);
 
-  function playSound(name) {
-    if (!state.sound.enabled) return;
-    const a = sounds[name];
-    if (!a || a.dataset.broken === '1') return;
-    try {
-      a.pause();
-      a.currentTime = 0;
-      a.volume = state.sound.volume;
-      const p = a.play();
-      if (p && p.catch) p.catch(() => {}); // автоплей мог быть заблокирован
-    } catch (_) {}
-  }
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function makePool(){const c=$('content').value,d=Number($('difficulty').value);let items=[];
+ if(c!=='combo')items.push(...basic.map(([kana,romaji])=>({kana,romaji,kind:'Single kana'})));
+ if(c!=='basic')items.push(...allCombos.filter(x=>x[2]<=d).map(([kana,romaji,t])=>({kana,romaji,kind:t>=3?'Extended combination':'Combination'})));
+ if(selectedRows.size)items=items.filter(x=>selectedRows.has(rowOf(x.kana)));
+ if($('script').value!=='hira')items=items.map(x=>({...x,kana:kmap[x.kana]||[...x.kana].map(ch=>kmap[ch]||ch).join('')}));
+ return items;}
 
-  // ---- Загрузка/сохранение настроек ----
-  function loadSettings() {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return;
-      const s = JSON.parse(raw);
-      if (typeof s.soundEnabled === 'boolean') state.sound.enabled = s.soundEnabled;
-      if (typeof s.volume === 'number' && s.volume >= 0 && s.volume <= 1) state.sound.volume = s.volume;
-      if (s.alphabet) state.alphabet = s.alphabet;
-      if (Array.isArray(s.rows) && s.rows.length) state.selectedRows = new Set(s.rows);
-      if (typeof s.useChoices === 'boolean') state.useChoices = s.useChoices;
-      if (typeof s.shuffleMode === 'boolean') state.shuffleMode = s.shuffleMode;
-    } catch (_) {}
-  }
-  function saveSettings() {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify({
-        soundEnabled: state.sound.enabled,
-        volume: state.sound.volume,
-        alphabet: state.alphabet,
-        rows: [...state.selectedRows],
-        useChoices: state.useChoices,
-        shuffleMode: state.shuffleMode,
-      }));
-    } catch (_) {}
-  }
+function showGlyph(){clearTimeout(flashId);hidden=false;$('glyph').classList.remove('gone');$('hint').textContent='Type the reading in romaji';}
+function startFlash(){const t=flashTime.get()*1000,f=$('flashfill');f.style.transition='none';f.style.width='100%';void f.offsetWidth;f.style.transition='width '+t+'ms linear';f.style.width='0%';flashId=setTimeout(()=>{hidden=true;$('glyph').classList.add('gone');$('hint').textContent='It disappeared. You can still answer.';},t);}
 
-  function syncSettingsUI() {
-    optSound.checked = state.sound.enabled;
-    optVolume.value = Math.round(state.sound.volume * 100);
-    volumeVal.textContent = Math.round(state.sound.volume * 100) + '%';
-    optVolume.disabled = !state.sound.enabled;
-    optChoices.checked = state.useChoices;
-    optShuffle.checked = state.shuffleMode;
-    // alphabet
-    [...alphabetButtonsEl.children].forEach(b => {
-      b.classList.toggle('active', b.dataset.alphabet === state.alphabet);
-    });
-  }
+function start(){pool=makePool();if(!pool.length){$('setup-note').textContent='No questions match these settings. Pick other rows or change the content type.';return;}
+ $('setup-note').textContent='';clearInterval(timerId);showGlyph();
+ queue=shuffle([...pool]);ok=0;err=0;lateOk=0;count=0;total=remaining=roundLen.get();running=true;
+ $('setup').style.display='none';$('game').style.display='block';$('mode-label').textContent=modeText[mode][0];
+ $('timer-box').classList.toggle('hidden',mode!=='timed');$('progress').classList.toggle('hidden',mode!=='timed');$('flashbar').classList.toggle('hidden',mode!=='flash');
+ $('progress-fill').style.width='100%';$('time').textContent=remaining;$('correct').textContent='0';$('wrong').textContent='0';
+ $('feedback').textContent='';$('feedback').className='feedback';
+ $('answer').disabled=false;$('answer-btn').disabled=false;$('finish').textContent='Finish';
+ next();
+ if(mode==='timed')timerId=setInterval(()=>{remaining--;$('time').textContent=remaining;$('progress-fill').style.width=(remaining/total*100)+'%';if(remaining<=0)finish(true);},1000);
+ $('answer').focus();}
+function next(){if(!running)return;
+ if(!queue.length){if(mode==='classic'||mode==='flash'){finish(false);return;}queue=shuffle([...pool]);}
+ current=queue.shift();count++;showGlyph();
+ $('glyph').textContent=current.kana;$('question-type').textContent=current.kind;$('round-label').textContent='Question '+count;
+ $('answer').value='';$('answer').focus();
+ if(mode==='flash')startFlash();}
+function submit(){if(!running||!current)return;
+ const v=$('answer').value.trim().toLowerCase().replace(/\s/g,'');if(!v)return;
+ const item=current,late=hidden&&mode==='flash',right=v===item.romaji;
+ if(right){ok++;if(late)lateOk++;sound('correct');}else{err++;sound('wrong');}
+ $('correct').textContent=ok;$('wrong').textContent=err;
+ next();
+ if(running){$('feedback').textContent=(right?'Correct: ':'Wrong: ')+item.kana+' = '+item.romaji;$('feedback').className='feedback '+(right?'good':'bad');}}
+function finish(byTimer=false){if(!running)return;running=false;clearInterval(timerId);clearTimeout(flashId);current=null;sound('finish');
+ $('glyph').classList.remove('gone');$('flashbar').classList.add('hidden');$('hint').textContent='';
+ $('glyph').textContent=byTimer?'Time up':'Done';$('question-type').textContent='Round finished';
+ $('answer').disabled=true;$('answer-btn').disabled=true;
+ $('feedback').textContent='Result: '+ok+' correct, '+err+' wrong, '+(ok+err)+' answered'+(mode==='flash'?'. '+lateOk+' correct after the kana disappeared.':'');
+ $('feedback').className='feedback '+(ok>=err?'good':'bad');$('round-label').textContent='Summary';$('finish').textContent='Back to setup';}
+function back(){if(running)finish(false);clearTimeout(flashId);$('game').style.display='none';$('setup').style.display='block';$('answer').disabled=false;$('answer-btn').disabled=false;$('finish').textContent='Finish';}
 
-  // ---- UI: настройки ----
-  settingsBtn.addEventListener('click', () => {
-    const open = settingsPanel.classList.toggle('open');
-    settingsBtn.setAttribute('aria-expanded', String(open));
-    settingsBtn.textContent = open ? 'Скрыть настройки' : 'Настройки';
-  });
-
-  optSound.addEventListener('change', () => {
-    state.sound.enabled = optSound.checked;
-    optVolume.disabled = !state.sound.enabled;
-    saveSettings();
-  });
-  optVolume.addEventListener('input', () => {
-    state.sound.volume = Math.max(0, Math.min(1, optVolume.value / 100));
-    volumeVal.textContent = Math.round(state.sound.volume * 100) + '%';
-    saveSettings();
-  });
-
-  // ---- Выбор режимов ----
-  optChoices.addEventListener('change', () => {
-    state.useChoices = optChoices.checked;
-    saveSettings();
-  });
-  optShuffle.addEventListener('change', () => {
-    state.shuffleMode = optShuffle.checked;
-    saveSettings();
-  });
-
-  // ---- Ряды ----
-  function buildRowButtons() {
-    rowButtonsEl.innerHTML = '';
-    for (const [key, row] of Object.entries(ROWS)) {
-      const btn = document.createElement('button');
-      btn.className = 'row-btn' + (state.selectedRows.has(key) ? ' active' : '');
-      btn.dataset.row = key;
-      btn.innerHTML = row.label + ' <small>' + row.chars.length + '</small>';
-      btn.addEventListener('click', () => {
-        if (state.selectedRows.has(key)) {
-          if (state.selectedRows.size === 1) return;
-          state.selectedRows.delete(key);
-        } else {
-          state.selectedRows.add(key);
-        }
-        buildRowButtons();
-        saveSettings();
-      });
-      rowButtonsEl.appendChild(btn);
-    }
-  }
-
-  alphabetButtonsEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('.row-btn');
-    if (!btn) return;
-    state.alphabet = btn.dataset.alphabet;
-    [...alphabetButtonsEl.children].forEach(b => b.classList.toggle('active', b === btn));
-    saveSettings();
-  });
-
-  function buildPool() {
-    const items = [];
-    for (const key of state.selectedRows) {
-      for (const [hira, kata, romaji] of ROWS[key].chars) {
-        if (state.alphabet === 'both') {
-          items.push({ kana: hira, romaji, type: 'hiragana' });
-          items.push({ kana: kata, romaji, type: 'katakana' });
-        } else if (state.alphabet === 'hiragana') {
-          items.push({ kana: hira, romaji, type: 'hiragana' });
-        } else {
-          items.push({ kana: kata, romaji, type: 'katakana' });
-        }
-      }
-    }
-    return items;
-  }
-
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  function normalize(s) {
-    return s.trim().toLowerCase().replace(/\s+/g, '');
-  }
-
-  function isCorrect(input, romajiVariants) {
-    const val = normalize(input);
-    return romajiVariants.some(r => normalize(r) === val);
-  }
-
-  function buildChoices() {
-    const all = state.pool.map(p => p.romaji[0]);
-    const uniq = [...new Set(all)];
-    const correct = state.current.romaji[0];
-    const distractorPool = uniq.filter(r => r !== correct);
-    shuffle(distractorPool);
-    const chosen = [correct, ...distractorPool.slice(0, 3)];
-
-    if (state.shuffleMode) {
-      shuffle(chosen);
-      return chosen;
-    }
-    const rest = chosen.slice(1).sort((a, b) => a.localeCompare(b));
-    return [correct, ...rest];
-  }
-
-  function nextQuestion() {
-    feedbackEl.textContent = '';
-    feedbackEl.className = 'feedback';
-    answerInput.value = '';
-    answerInput.className = '';
-    kanaEl.className = 'kana';
-    state.locked = false;
-
-    if (state.queue.length === 0) {
-      if (state.infinite) {
-        state.queue = state.shuffleMode ? shuffle(buildPool()) : buildPool();
-      } else {
-        kanaEl.textContent = '✓';
-        kanaEl.className = 'kana correct';
-        answerInput.disabled = true;
-        answerForm.querySelector('button').disabled = true;
-        feedbackEl.textContent = `Готово! Верно: ${state.ok}, ошибок: ${state.err}`;
-        feedbackEl.className = 'feedback ok';
-        state.running = false;
-        playSound('finish');
-        return;
-      }
-    }
-
-    state.current = state.queue[0];
-    kanaEl.textContent = state.current.kana;
-
-    if (state.useChoices) {
-      answerForm.style.display = 'none';
-      choicesEl.style.display = 'grid';
-      renderChoices();
-    } else {
-      choicesEl.style.display = 'none';
-      answerForm.style.display = 'flex';
-      answerInput.disabled = false;
-      answerForm.querySelector('button').disabled = false;
-      answerInput.focus();
-    }
-
-    updateStats();
-  }
-
-  function renderChoices() {
-    const choices = buildChoices();
-    choicesEl.innerHTML = '';
-    for (const r of choices) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'choice-btn';
-      b.textContent = r;
-      b.addEventListener('click', () => onChoice(r, b));
-      choicesEl.appendChild(b);
-    }
-  }
-
-  function onChoice(selected, btnEl) {
-    if (state.locked || !state.running || !state.current) return;
-    state.locked = true;
-    const allBtns = [...choicesEl.querySelectorAll('.choice-btn')];
-    allBtns.forEach(b => b.disabled = true);
-
-    if (isCorrect(selected, state.current.romaji)) {
-      state.ok++;
-      kanaEl.classList.add('correct');
-      btnEl.classList.add('ok');
-      feedbackEl.textContent = 'Верно!';
-      feedbackEl.className = 'feedback ok';
-      playSound('correct');
-      state.queue.shift();
-      updateStats();
-      setTimeout(nextQuestion, 500);
-    } else {
-      state.err++;
-      kanaEl.classList.add('wrong');
-      btnEl.classList.add('err');
-      allBtns.forEach(b => {
-        if (isCorrect(b.textContent, state.current.romaji)) b.classList.add('ok');
-      });
-      feedbackEl.textContent = `Неверно. Правильно: ${state.current.romaji[0]}`;
-      feedbackEl.className = 'feedback err';
-      playSound('wrong');
-      const wrong = state.queue.shift();
-      state.queue.push(wrong);
-      updateStats();
-      setTimeout(() => nextQuestion(), 1200);
-    }
-  }
-
-  function updateStats() {
-    statOk.textContent = state.ok;
-    statErr.textContent = state.err;
-    statLeft.textContent = state.queue.length;
-    leftWrap.style.display = state.infinite ? 'none' : '';
-  }
-
-  function startTraining(infinite, forceConfig) {
-    const cfg = forceConfig || {
-      infinite,
-      rows: [...state.selectedRows],
-      alphabet: state.alphabet,
-      useChoices: state.useChoices,
-      shuffleMode: state.shuffleMode,
-    };
-
-    // временно применим конфиг (для перезапуска)
-    state.selectedRows = new Set(cfg.rows);
-    state.alphabet = cfg.alphabet;
-    state.useChoices = cfg.useChoices;
-    state.shuffleMode = cfg.shuffleMode;
-
-    const pool = buildPool();
-    if (pool.length === 0) return;
-    if (state.useChoices) {
-      const uniq = new Set(pool.map(p => p.romaji[0]));
-      if (uniq.size < 4) {
-        alert('Для режима «Варианты ответов» нужно минимум 4 разных символа. Добавьте ряды.');
-        return;
-      }
-    }
-
-    state.infinite = cfg.infinite;
-    state.pool = pool;
-    state.queue = state.shuffleMode ? shuffle(buildPool()) : buildPool();
-    state.ok = 0;
-    state.err = 0;
-    state.running = true;
-    state.locked = false;
-    state.lastConfig = cfg;
-
-    modeBadge.textContent = (state.infinite ? '∞ Бесконечный режим' : 'Обычный режим')
-      + (state.useChoices ? ' · варианты' : ' · ручной ввод')
-      + (state.shuffleMode ? ' · перемешано' : ' · по порядку');
-
-    setupEl.style.display = 'none';
-    trainerEl.classList.add('active');
-    nextQuestion();
-  }
-
-  startBtn.addEventListener('click', () => startTraining(false));
-  infiniteBtn.addEventListener('click', () => startTraining(true));
-
-  // Перезапуск
-  restartBtn.addEventListener('click', () => {
-    if (!state.lastConfig) return;
-    startTraining(state.lastConfig.infinite, state.lastConfig);
-  });
-
-  stopBtn.addEventListener('click', () => {
-    state.running = false;
-    state.infinite = false;
-    state.locked = false;
-    trainerEl.classList.remove('active');
-    setupEl.style.display = '';
-    answerInput.disabled = false;
-    answerForm.querySelector('button').disabled = false;
-    answerForm.style.display = 'flex';
-    choicesEl.style.display = 'none';
-    syncSettingsUI();
-    buildRowButtons();
-  });
-
-  // Ручной ввод
-  answerForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!state.running || !state.current || state.useChoices) return;
-
-    const input = answerInput.value;
-    if (normalize(input) === '') return;
-
-    if (isCorrect(input, state.current.romaji)) {
-      state.ok++;
-      kanaEl.classList.add('correct');
-      answerInput.classList.add('ok');
-      feedbackEl.textContent = 'Верно!';
-      feedbackEl.className = 'feedback ok';
-      playSound('correct');
-      state.queue.shift();
-      updateStats();
-      setTimeout(nextQuestion, 400);
-    } else {
-      state.err++;
-      kanaEl.classList.add('wrong');
-      answerInput.classList.add('err');
-      feedbackEl.textContent = `Неверно. Правильно: ${state.current.romaji[0]}`;
-      feedbackEl.className = 'feedback err';
-      playSound('wrong');
-      const wrong = state.queue.shift();
-      state.queue.push(wrong);
-      updateStats();
-      setTimeout(() => nextQuestion(), 1100);
-    }
-  });
-
-  // Горячие клавиши
-  document.addEventListener('keydown', (e) => {
-    const tag = (e.target && e.target.tagName) || '';
-    const typing = tag === 'INPUT' || tag === 'TEXTAREA';
-
-    if (state.running) {
-      // R — перезапуск (даже когда печатаешь)
-      if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        // если это не латинская раскладка — проверим код
-        if (e.code === 'KeyR' || e.key.toLowerCase() === 'r') {
-          e.preventDefault();
-          restartBtn.click();
-        }
-        return;
-      }
-      // Esc — завершить
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        stopBtn.click();
-        return;
-      }
-    } else {
-      // В настройках R не нужен
-    }
-  });
-
-  // ---- Init ----
-  loadSettings();
-  buildRowButtons();
-  syncSettingsUI();
+$('start').addEventListener('click',start);
+$('answer-btn').addEventListener('click',submit);
+$('answer').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();submit();}});
+$('finish').addEventListener('click',back);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dlg.open&&$('game').style.display==='block')back();});
+updateSetupVisibility();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
