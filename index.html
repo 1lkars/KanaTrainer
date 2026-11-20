@@ -82,7 +82,14 @@ dialog::backdrop{background:rgba(10,12,25,.5);backdrop-filter:blur(3px)}
 .m-typed{font-size:.82rem;color:var(--bad);overflow-wrap:anywhere}
 .ov-actions{display:flex;gap:10px;margin-top:22px}.ov-actions .btn{flex:1;justify-content:center}
 #overview{display:none}
-@media(max-width:520px){.answer{flex-direction:column}.panel{padding:18px;border-radius:20px}.stat{padding:5px 10px}}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.choices.long{grid-template-columns:1fr}
+.choice{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:1.1rem;font-weight:600;overflow-wrap:anywhere;transition:border-color .15s,background .15s}
+.choice:hover{border-color:var(--accent);background:var(--accent-soft)}
+.choice .key{flex:none;width:24px;height:24px;border-radius:8px;background:var(--surface2);color:var(--muted);font-size:.78rem;display:grid;place-items:center}
+button{touch-action:manipulation}
+@media(hover:none){.kbhint,.choice .key{display:none}}
+@media(max-width:520px){select,input[type=number]{font-size:16px}.chip{padding:9px 16px}.answer{flex-direction:column}.panel{padding:18px;border-radius:20px}.stat{padding:5px 10px}}
 @media(prefers-reduced-motion:reduce){.bar>div{transition:none}}
 </style></head><body><div class="app">
 <header><div class="brand"><img id="logo" alt="" width="38" height="38"><h1>Kana Trainer</h1></div><button class="btn ghost" id="open-settings" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button></header>
@@ -95,20 +102,23 @@ dialog::backdrop{background:rgba(10,12,25,.5);backdrop-filter:blur(3px)}
 <div class="seg" id="modes"><button type="button" data-mode="classic" aria-pressed="true">Classic</button><button type="button" data-mode="timed" aria-pressed="false">Timed</button><button type="button" data-mode="endless" aria-pressed="false">Endless</button></div>
 <p class="muted" id="mode-desc" style="margin:8px 0 0"></p></div>
 
-<div class="group hidden" id="duration-field"><label class="label" for="duration">Round length</label><div class="range"><input type="range" id="duration" min="5" max="300" step="5" value="60"><input type="number" id="duration-num" min="5" max="600" step="1" value="60" aria-label="Round length in seconds"><span class="unit">s</span></div></div>
+<div class="group hidden" id="duration-field"><label class="label" for="duration">Round length</label><div class="range"><input type="range" id="duration" min="5" max="300" step="5" value="60" autocomplete="off"><input type="number" id="duration-num" min="5" max="600" step="1" value="60" aria-label="Round length in seconds" autocomplete="off"><span class="unit">s</span></div></div>
 
-<div class="group"><label class="check"><input type="checkbox" id="flash"> Hide each kana after a short time</label><p class="muted" style="margin:4px 0 0 25px">You can still type your answer after it disappears.</p></div>
+<div class="group"><label class="check"><input type="checkbox" id="flash" autocomplete="off"> Hide each kana after a short time</label><p class="muted" style="margin:4px 0 0 25px">You can still answer after it disappears.</p></div>
 
-<div class="group hidden" id="flash-field"><label class="label" for="flash-time">Time the kana stays visible</label><div class="range"><input type="range" id="flash-time" min="0.5" max="5" step="0.5" value="2"><input type="number" id="flash-num" min="0.2" max="10" step="0.1" value="2" aria-label="Visible time in seconds"><span class="unit">s</span></div></div>
+<div class="group hidden" id="flash-field"><label class="label" for="flash-time">Time the kana stays visible</label><div class="range"><input type="range" id="flash-time" min="0.5" max="5" step="0.5" value="2" autocomplete="off"><input type="number" id="flash-num" min="0.2" max="10" step="0.1" value="2" aria-label="Visible time in seconds" autocomplete="off"><span class="unit">s</span></div></div>
+
+<div class="group"><label class="check"><input type="checkbox" id="choices" autocomplete="off"> Answer choices</label><p class="muted" style="margin:4px 0 0 28px">Some questions show options to pick from instead of a text box (about half of them).</p>
+<label class="check hidden" id="choices-only-field" style="margin:12px 0 0 28px"><input type="checkbox" id="choices-only" autocomplete="off"> Choices on every question (no typing)</label></div>
 
 <div class="group grid">
-<div><label class="label" for="script">Script</label><select id="script"><option value="both">Hiragana + katakana</option><option value="hira">Hiragana only</option><option value="kata">Katakana only</option></select></div>
-<div><label class="label" for="content">Content</label><select id="content"><option value="all">Kana + combinations</option><option value="basic">Single kana only</option><option value="combo">Combinations only</option></select></div>
-<div id="difficulty-field"><label class="label" for="difficulty">Difficulty</label><select id="difficulty"><option value="1">Easy (up to 5 kana)</option><option value="2" selected>Medium (up to 10)</option><option value="3">Hard (up to 15)</option><option value="4">Expert (up to 20)</option></select></div>
+<div><label class="label" for="script">Script</label><select id="script" autocomplete="off"><option value="both">Hiragana + katakana</option><option value="hira">Hiragana only</option><option value="kata">Katakana only</option></select></div>
+<div><label class="label" for="content">Content</label><select id="content" autocomplete="off"><option value="all">Kana + combinations</option><option value="basic">Single kana only</option><option value="combo">Combinations only</option></select></div>
+<div id="difficulty-field"><label class="label" for="difficulty">Difficulty</label><select id="difficulty" autocomplete="off"><option value="1">Easy (up to 5 kana)</option><option value="2" selected>Medium (up to 10)</option><option value="3">Hard (up to 15)</option><option value="4">Expert (up to 20)</option></select></div>
 </div>
 <p class="muted" id="diff-hint" style="margin:8px 0 0"></p>
 
-<div class="group" id="maxlen-field"><label class="label" for="maxlen">Max kana per question (set by difficulty, adjustable)</label><div class="range"><input type="range" id="maxlen" min="1" max="30" step="1" value="10"><input type="number" id="maxlen-num" min="1" max="50" step="1" value="10" aria-label="Max kana per question"><span class="unit">kana</span></div></div>
+<div class="group" id="maxlen-field"><label class="label" for="maxlen">Max kana per question (set by difficulty, adjustable)</label><div class="range"><input type="range" id="maxlen" min="1" max="30" step="1" value="10" autocomplete="off"><input type="number" id="maxlen-num" min="1" max="50" step="1" value="10" aria-label="Max kana per question" autocomplete="off"><span class="unit">kana</span></div></div>
 
 <div class="group" id="small-field"><span class="label">Small kana (shown rarely, switch each off if you like)</span><div class="chips" id="smalls"><button type="button" class="chip" data-small="ゃ" aria-pressed="true">ゃ ya</button><button type="button" class="chip" data-small="ゅ" aria-pressed="true">ゅ yu</button><button type="button" class="chip" data-small="ょ" aria-pressed="true">ょ yo</button></div></div>
 
@@ -124,9 +134,10 @@ dialog::backdrop{background:rgba(10,12,25,.5);backdrop-filter:blur(3px)}
 <div class="stats"><div class="stat">Correct<b id="correct">0</b></div><div class="stat">Wrong<b id="wrong">0</b></div><div class="stat" id="timer-box">Time<b id="time">60</b></div></div></div>
 <div class="bar" id="progress"><div id="progress-fill"></div></div>
 <div class="question"><span class="muted" id="question-type">Combination</span><div class="glyph" id="glyph">きゃ</div><div class="bar flash hidden" id="flashbar"><div id="flashfill" style="transition:none"></div></div><span class="muted" id="hint">Type the reading in romaji</span></div>
-<div class="answer"><input id="answer" type="text" placeholder="e.g. kya" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Romaji answer"><button class="btn primary" id="answer-btn" type="button">Answer</button></div>
+<div class="choices hidden" id="choices-box"></div>
+<div class="answer" id="answer-row"><input id="answer" type="text" placeholder="e.g. kya" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Romaji answer"><button class="btn primary" id="answer-btn" type="button">Answer</button></div>
 <div class="feedback" id="feedback" role="status"></div>
-<div class="gamebottom"><span class="muted">Enter to answer, Esc to finish</span><button class="btn" id="finish" type="button">Finish</button></div>
+<div class="gamebottom"><span class="muted kbhint">Enter to answer (1-4 to pick a choice), Esc to finish</span><button class="btn" id="finish" type="button">Finish</button></div>
 </section>
 
 <section id="overview" class="panel">
@@ -140,8 +151,8 @@ dialog::backdrop{background:rgba(10,12,25,.5);backdrop-filter:blur(3px)}
 
 <dialog id="settings"><h2>Settings</h2>
 <div><span class="label">Theme</span><div class="seg" id="themes"><button type="button" data-t="system" aria-pressed="true">System</button><button type="button" data-t="light" aria-pressed="false">Light</button><button type="button" data-t="dark" aria-pressed="false">Dark</button></div></div>
-<div class="group"><label class="check"><input type="checkbox" id="sound" checked> Sound effects</label></div>
-<div class="group"><label class="label" for="volume">Sound effects volume</label><div class="range"><input type="range" id="volume" min="0" max="100" step="5" value="70"><input type="number" id="volume-num" min="0" max="100" step="1" value="70" aria-label="Volume in percent"><span class="unit">%</span></div></div>
+<div class="group"><label class="check"><input type="checkbox" id="sound" checked autocomplete="off"> Sound effects</label></div>
+<div class="group"><label class="label" for="volume">Sound effects volume</label><div class="range"><input type="range" id="volume" min="0" max="100" step="5" value="70" autocomplete="off"><input type="number" id="volume-num" min="0" max="100" step="1" value="70" aria-label="Volume in percent" autocomplete="off"><span class="unit">%</span></div></div>
 <div class="dialog-actions"><button class="btn primary" id="close-settings" type="button">Done</button></div></dialog>
 
 <script>
@@ -182,6 +193,7 @@ const contentText={all:'A mix of single kana and random strings of kana.',basic:
 const flashTime=bindPair($('flash-time'),$('flash-num'),{min:0.2,max:10,dec:1});
 
 let mode='classic',flashOn=false,maxPer=1,base=[],extra=[],contentMode='all',queue=[],current=null,ok=0,err=0,lateOk=0,count=0,running=false,remaining=60,total=60,timerId=null,flashId=null,hidden=false,startTs=0,qStart=0,streak=0,bestStreak=0,times=[],mistakes=[];
+let choicesOn=false,choicesAlways=false,useChoices=false;
 const modeText={classic:['Classic','Go through the whole set once, at your own pace.'],timed:['Timed','Answer as many as you can before time runs out.'],endless:['Endless','No end and no timer. Finish whenever you like.']};
 $('mode-desc').textContent=modeText.classic[1];
 
@@ -203,9 +215,9 @@ const dlg=$('settings');
 $('open-settings').addEventListener('click',()=>dlg.showModal());
 $('close-settings').addEventListener('click',()=>dlg.close());
 
-function updateSetupVisibility(){const c=$('content').value,single=c==='basic';$('difficulty-field').classList.toggle('hidden',single);$('maxlen-field').classList.toggle('hidden',single);$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',!$('flash').checked);$('diff-hint').textContent=contentText[c]+' Small kana in the mix: '+comboHint[single?2:$('difficulty').value]+'.';}
+function updateSetupVisibility(){const c=$('content').value,single=c==='basic';$('difficulty-field').classList.toggle('hidden',single);$('maxlen-field').classList.toggle('hidden',single);$('duration-field').classList.toggle('hidden',mode!=='timed');$('flash-field').classList.toggle('hidden',!$('flash').checked);$('choices-only-field').classList.toggle('hidden',!$('choices').checked);$('diff-hint').textContent=contentText[c]+' Small kana in the mix: '+comboHint[single?2:$('difficulty').value]+'.';}
 document.querySelectorAll('#modes button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('#modes button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('mode-desc').textContent=modeText[mode][1];updateSetupVisibility();}));
-$('content').addEventListener('change',updateSetupVisibility);$('difficulty').addEventListener('change',()=>{maxLen.set(lens[$('difficulty').value]);updateSetupVisibility();});$('flash').addEventListener('change',updateSetupVisibility);
+$('content').addEventListener('change',updateSetupVisibility);$('difficulty').addEventListener('change',()=>{maxLen.set(lens[$('difficulty').value]);updateSetupVisibility();});$('flash').addEventListener('change',updateSetupVisibility);$('choices').addEventListener('change',()=>{if(!$('choices').checked)$('choices-only').checked=false;updateSetupVisibility();});
 /* Small kana (ゃ ゅ ょ) toggles for yoon combinations */
 const selectedSmalls=new Set(['ゃ','ゅ','ょ']);
 document.querySelectorAll('#smalls .chip').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.small;selectedSmalls.has(k)?selectedSmalls.delete(k):selectedSmalls.add(k);b.setAttribute('aria-pressed',selectedSmalls.has(k));}));
@@ -229,13 +241,28 @@ function buildQuestion(){const max=maxPer,pick=()=>2+Math.floor(Math.random()*(m
   /* avoid ん followed by a vowel or y-kana: the romaji would read as a different syllable (n+a = na) */
   if(parts.length&&parts[parts.length-1].romaji==='n'){i=queue.findIndex(u=>!/^[aiueoy]/.test(u.romaji));if(i<0)break;}
   parts.push(queue.splice(i,1)[0]);}
- return{kana:parts.map(u=>u.kana).join(''),romaji:parts.map(u=>u.romaji).join(''),n:parts.length,kind:parts[0].kind};}
+ return{kana:parts.map(u=>u.kana).join(''),romaji:parts.map(u=>u.romaji).join(''),n:parts.length,kind:parts[0].kind,parts};}
 function setGlyph(t){const g=$('glyph'),w=g.parentElement.clientWidth||520;g.textContent=t;g.style.fontSize=Math.max(36,Math.min(128,Math.floor(w*0.9/[...t].length)))+'px';}
-function showGlyph(){clearTimeout(flashId);hidden=false;$('glyph').classList.remove('gone');$('hint').textContent='Type the reading in romaji';}
+function showGlyph(){clearTimeout(flashId);hidden=false;$('glyph').classList.remove('gone');$('hint').textContent=useChoices?'Pick the right reading':'Type the reading in romaji';}
+/* Multiple choice: the correct reading plus similar-looking wrong ones (one or two units swapped in strings) */
+function makeChoices(q){
+ const units=[...new Set([...base,...extra].map(u=>u.romaji))],fill=[...new Set(basic.map(b=>b[1]))];
+ const cand=units.length>=4?units:[...new Set([...units,...fill])],pickC=()=>cand[Math.floor(Math.random()*cand.length)];
+ const out=new Set([q.romaji]);let tries=0;
+ while(out.size<4&&tries++<300){
+  if(q.n===1)out.add(pickC());
+  else{const r=q.parts.map(u=>u.romaji),k=q.n<=3?1:1+Math.floor(Math.random()*2);for(let j=0;j<k;j++)r[Math.floor(Math.random()*r.length)]=pickC();out.add(r.join(''));}}
+ return shuffle([...out]);}
+function renderInput(){
+ const box=$('choices-box'),row=$('answer-row');
+ if(!useChoices){box.classList.add('hidden');row.classList.remove('hidden');$('answer').value='';$('answer').focus();return;}
+ row.classList.add('hidden');box.classList.remove('hidden');box.textContent='';
+ const opts=makeChoices(current);box.classList.toggle('long',opts.some(o=>o.length>12));
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='choice';b.append(el('span','key',String(i+1)),el('span','',o));b.addEventListener('click',()=>answer(o));box.appendChild(b);});}
 function startFlash(){const t=flashTime.get()*1000,f=$('flashfill');f.style.transition='none';f.style.width='100%';void f.offsetWidth;f.style.transition='width '+t+'ms linear';f.style.width='0%';flashId=setTimeout(()=>{hidden=true;$('glyph').classList.add('gone');$('hint').textContent='It disappeared. You can still answer.';},t);}
 
 function start(){({base,extra}=makePool());contentMode=$('content').value;if(!base.length&&!extra.length){$('setup-note').textContent='No questions match these settings. Pick other rows, small kana or content type.';return;}
- $('setup-note').textContent='';clearInterval(timerId);flashOn=$('flash').checked;maxPer=$('content').value==='basic'?1:maxLen.get();showGlyph();
+ $('setup-note').textContent='';clearInterval(timerId);flashOn=$('flash').checked;choicesOn=$('choices').checked;choicesAlways=choicesOn&&!$('choices-only-field').classList.contains('hidden')&&$('choices-only').checked;maxPer=$('content').value==='basic'?1:maxLen.get();showGlyph();
  refill();ok=0;err=0;lateOk=0;count=0;total=remaining=roundLen.get();running=true;startTs=performance.now();streak=0;bestStreak=0;times=[];mistakes=[];
  $('setup').style.display='none';$('overview').style.display='none';$('game').style.display='block';$('mode-label').textContent=modeText[mode][0];
  $('timer-box').classList.toggle('hidden',mode!=='timed');$('progress').classList.toggle('hidden',mode!=='timed');$('flashbar').classList.toggle('hidden',!flashOn);
@@ -247,15 +274,15 @@ function start(){({base,extra}=makePool());contentMode=$('content').value;if(!ba
  $('answer').focus();}
 function next(){if(!running)return;
  if(!queue.length){if(mode==='classic'){finish('done');return;}refill();}
- current=buildQuestion();count++;showGlyph();
+ current=buildQuestion();count++;useChoices=choicesOn&&(choicesAlways||Math.random()<0.5);showGlyph();
  setGlyph(current.kana);$('question-type').textContent=current.n===1?current.kind:current.n+' kana';$('round-label').textContent='Question '+count;
- $('answer').value='';$('answer').focus();qStart=performance.now();
+ renderInput();qStart=performance.now();
  if(flashOn)startFlash();}
-function submit(){if(!running||!current)return;
- const v=$('answer').value.trim().toLowerCase().replace(/\s/g,'');if(!v)return;
- const item=current,late=hidden&&flashOn,right=v===item.romaji;
+function submit(){if(useChoices)return;const v=$('answer').value.trim().toLowerCase().replace(/\s/g,'');if(!v)return;answer(v);}
+function answer(v){if(!running||!current)return;
+  const item=current,late=hidden&&flashOn,right=v===item.romaji,picked=useChoices;
  times.push((performance.now()-qStart)/1000);
-  if(right){ok++;streak++;bestStreak=Math.max(bestStreak,streak);if(late)lateOk++;sound('correct');}else{err++;streak=0;mistakes.push({kana:item.kana,romaji:item.romaji,typed:v});sound('wrong');}
+  if(right){ok++;streak++;bestStreak=Math.max(bestStreak,streak);if(late)lateOk++;sound('correct');}else{err++;streak=0;mistakes.push({kana:item.kana,romaji:item.romaji,typed:v,picked});sound('wrong');}
  $('correct').textContent=ok;$('wrong').textContent=err;
  next();
  if(running){$('feedback').textContent=(right?'Correct: ':'Wrong: ')+item.kana+' = '+item.romaji;$('feedback').className='feedback '+(right?'good':'bad');}}
@@ -270,7 +297,7 @@ function showOverview(reason){
   if(flashOn)tiles.push(['Correct after it hid',lateOk]);
   const box=$('ov-tiles');box.textContent='';tiles.forEach(([l,v])=>{const d=el('div','tile');d.append(el('b','',v),el('span','',l));box.appendChild(d);});
   const ml=$('ov-mistakes');ml.textContent='';$('ov-mistakes-wrap').classList.toggle('hidden',!mistakes.length);
-  mistakes.slice(0,30).forEach(m=>{const r=el('div','mistake');r.append(el('span','m-kana',m.kana),el('span','m-rom',m.romaji),el('span','m-typed','you typed: '+m.typed));ml.appendChild(r);});
+  mistakes.slice(0,30).forEach(m=>{const r=el('div','mistake');r.append(el('span','m-kana',m.kana),el('span','m-rom',m.romaji),el('span','m-typed',(m.picked?'you picked: ':'you typed: ')+m.typed));ml.appendChild(r);});
   if(mistakes.length>30)ml.appendChild(el('div','muted','+ '+(mistakes.length-30)+' more'));
   $('game').style.display='none';$('overview').style.display='block';}
 function finish(reason='manual'){if(!running)return;running=false;clearInterval(timerId);clearTimeout(flashId);current=null;sound('finish');showOverview(reason);}
@@ -280,7 +307,8 @@ $('start').addEventListener('click',start);
 $('answer-btn').addEventListener('click',submit);
 $('answer').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();submit();}});
 $('finish').addEventListener('click',()=>finish('manual'));$('ov-again').addEventListener('click',start);$('ov-back').addEventListener('click',toSetup);
-document.addEventListener('keydown',e=>{if(e.key!=='Escape'||dlg.open)return;if($('game').style.display==='block')finish('manual');else if($('overview').style.display==='block')toSetup();});
+document.addEventListener('keydown',e=>{if(dlg.open)return;if(e.key==='Escape'){if($('game').style.display==='block')finish('manual');else if($('overview').style.display==='block')toSetup();return;}if(running&&useChoices&&/^[1-9]$/.test(e.key)){const b=$('choices-box').children[Number(e.key)-1];if(b)b.click();}});
 updateSetupVisibility();updateSmallLabels();
+window.addEventListener('pageshow',()=>{if(!$('choices').checked)$('choices-only').checked=false;updateSetupVisibility();updateSmallLabels();});
 })();
 </script></body></html>
