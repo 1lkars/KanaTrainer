@@ -17,6 +17,9 @@ Go to https://1lkars.github.io/KanaTrainer/ and play it from your browser. Avail
 
 Any mode can be combined with the **Hide each kana after a short time** tick box. The kana disappears after the time you set, but you can still type your answer afterwards, and the summary shows how many you got right after it vanished.
 
+**Answer choices**
+Tick "Answer choices" to get multiple-choice questions with four options (wrong ones look similar to the right one; press 1-4 to pick). Alone it mixes choices and typing about 50/50. Tick "Choices on every question" to never type. Works with strings, rows, difficulty and the hide-after-a-short-time option.
+
 **Content**
 - Hiragana, katakana, or both.
 - Content: single kana only, combinations only (random strings of 2 or more kana, like katakana-style nonsense words), or a mix of both.
